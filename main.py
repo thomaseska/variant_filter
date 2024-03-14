@@ -69,7 +69,7 @@ parser.add_argument("-g", "--gnomad",
 
 parser.add_argument("-t", "--token", help="file containing token(s)")
 
-proxies = json.load(open("files/proxies.json"))
+
 
 args = parser.parse_args()
 
@@ -98,10 +98,6 @@ if args.token:
 else:
     token = None
 
-
-json_out = "files/E1130_test.json"
-
-excel_file = "files/E1130_complete.xlsx"
 
 
 if not args.batch:
