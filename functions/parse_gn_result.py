@@ -40,6 +40,16 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
         else:
             oncokb = f"{oncokb1},{oncokb2}"
 
+        if len(resp_dic["annotation_summary"]["transcriptConsequenceSummaries"]) == 0:
+            dic_to_add = {
+                "hgvsg": hgvsg,
+                "allele_frequency": var_freq[hgvsg],
+                "clinvar": clinvar,
+                "oncokb": oncokb
+            }
+
+            out_dict.append(dic_to_add)            
+
         for conseq in resp_dic["annotation_summary"]["transcriptConsequenceSummaries"]:
             transcript_id = conseq["transcriptId"]
             hugo = conseq["hugoGeneSymbol"]
