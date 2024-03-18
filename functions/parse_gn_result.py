@@ -6,7 +6,7 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
 
     clinvar_tolerated = ["Benign", "Likely_benign"]
     oncokb_tolerated = [ "Neutral", "Likely Neutral", "Unknown"] # 
-    polyphen_tolerated = ["unknown", "benign"]
+    polyphen_tolerated = ["benign"]
     sift_tolerated = ["tolerated"]
     out_dict = []
     for resp_dic in resp_ls_dics:
@@ -77,8 +77,8 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
                     if sift_score == "" or sift_pred in sift_tolerated:
 
                         if poly_pred == "" or poly_pred in polyphen_tolerated:
-
-                            continue
+                            if not (poly_pred == "" and sift_pred == "" and clinvar == ""):
+                                continue
             
 
             dic_to_add = {
