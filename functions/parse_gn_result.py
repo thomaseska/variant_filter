@@ -5,7 +5,7 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
     print(f"{helpers.nice_time()} : Creating excel file")
 
     clinvar_tolerated = ["Benign", "Likely_benign"]
-    oncokb_tolerated = ["Unknown", "Neutral", "Likely Neutral"]
+    oncokb_tolerated = [ "Neutral", "Likely Neutral", "Unknown"] # 
     polyphen_tolerated = ["unknown", "benign"]
     sift_tolerated = ["tolerated"]
     out_dict = []

@@ -74,7 +74,7 @@ def request_variant_info(req_ls, proxies, verify, max_gnomad):
             if item["gnomad_genome"]["af"]["af"] <= max_gnomad:
                 filtered_resp_ls.append(item)
         except KeyError:
-            continue
+            filtered_resp_ls.append(item)
             
     indexed_resp = dict((item["query"][3:], item) for item in filtered_resp_ls)
 
