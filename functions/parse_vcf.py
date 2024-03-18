@@ -40,6 +40,7 @@ def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
                 continue
             # filter quality
             if int(fields[5]) < min_qual:
+                # keep TERT
                 if not (fields[0] == "chr5" and int(fields[1]) >= 1253147 and int(fields[1]) <= 1295368):
                     continue
             # filter depth
@@ -53,7 +54,9 @@ def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
             values = fields[9].split(":")
             if float(values[vf_loc]) < min_VF:
                 continue
-
+            
+            if "Blacklist" in fields[6].split(";"):
+                continue
             # build identifier
             ref = fields[3]
             alt = fields[4]
