@@ -45,7 +45,8 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
                 "hgvsg": hgvsg,
                 "allele_frequency": var_freq[hgvsg],
                 "clinvar": clinvar,
-                "oncokb": oncokb
+                "oncokb": oncokb,
+                "population_frequency": pop_frequency
             }
 
             out_dict.append(dic_to_add)            
