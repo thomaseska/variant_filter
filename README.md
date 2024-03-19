@@ -37,7 +37,7 @@ All options:
 |short|long|description
 |-|-|-
 -b | --batch | Run in batch mode. Input must be a directory containing **only** VCF files.
--d | --depth | Minimum allele depth for VCF filtering. Default 25.
+-d | --depth | Minimum allele depth for VCF filtering. Default 25. Variants in the range 5:1253147-1295368 are returned even when failing this step, covering TERT, which is relevant even at low coverage.
 -f | --frequency | Minimum allele frequency within the sample for VCF filtering. Default 0.05.
 -g | --gnomad | Maximum variant frequency in the population for a variant to be considered. Default 0.01.
 -j | --json | File to save Genome Nexus Response to. In batch mode this must be a directory.
