@@ -3,3 +3,4 @@ files
 __pycache__
 runner.sh
 run.sh
+.vscode
