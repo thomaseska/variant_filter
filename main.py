@@ -24,7 +24,7 @@ def run(proxies, verify,
 
     req_ls = [variant for variant in req_ls if variant in list(gnomad.keys())]
 
-    print(f"{helpers.nice_time()} : {len(req_ls)} variants left after gnomad filtering (cutoff {max_gnomad})")
+    print(f"{helpers.nice_time()} : {len(req_ls)} variants left after gnomad filtering")
 
     resp_ls_dics = call_GN.request_annotation(req_ls=req_ls,
                                             proxies=proxies,
@@ -99,6 +99,12 @@ else:
     token = None
 
 
+print(f"Begin Variant Filtering...")
+print(f"Filtering parameters: ")
+print(f"    - Minimum quality score: {min_qual}")
+print(f"    - Minimum sequencing depth: {min_dp}")
+print(f"    - Minimum allele frequency: {min_VF}")
+print(f"    - Maximum population allele frequency: {max_gnomad}")
 
 if not args.batch:
     vcf_path = args.VCF_file_or_folder

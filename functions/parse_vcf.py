@@ -10,10 +10,6 @@ def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
     """
 
     print(f"Assessing file {vcf_path}")
-    print(f"Filtering parameters: ")
-    print(f"    - Minimum quality score: {min_qual}")
-    print(f"    - Minimum sequencing depth: {min_dp}")
-    print(f"    - Minimum allele frequency: {min_VF}")
     print(f"{helpers.nice_time()} : Begin processing...")
 
     linecounter = 0
