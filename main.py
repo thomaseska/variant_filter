@@ -10,6 +10,14 @@ def run(proxies, verify,
         vcf_path, excel_file, json_out,
         min_qual, min_dp, min_VF, max_gnomad,
         fields, token):
+    """
+    Execute the workflow for one VCF file:
+        - parse the VCF to obtain relevant variants
+        - get population frequency of variants from myvariant.info/gnomAD
+        - remove common variants
+        - obtain clinical information from genome nexus
+        - retain clinically relevant variant transcripts 
+    """
 
 
     req_ls, var_freq = parse_vcf.parse_vcf(vcf_path=vcf_path,
@@ -22,6 +30,7 @@ def run(proxies, verify,
                                         verify=verify,
                                         max_gnomad=max_gnomad)
 
+    # filter variant list by gnomAD result
     req_ls = [variant for variant in req_ls if variant in list(gnomad.keys())]
 
     print(f"{helpers.nice_time()} : {len(req_ls)} variants left after gnomad filtering")
@@ -46,7 +55,7 @@ def run(proxies, verify,
 parser = argparse.ArgumentParser(description='Process VCF files and retrieve variant annotation')
 
 parser.add_argument('VCF_file_or_folder',
-                     help="VCF file to process. If running with -b, folder contatining VCF files")
+                     help="VCF file to process. If running with -b, folder contatining only VCF files")
 parser.add_argument("-o", "--output", help="Output file to write to (xlsx)", required=True)
 parser.add_argument("-j", "--json", help="file to save Genome Nexus json response to")
 
@@ -136,10 +145,3 @@ else:
         run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out,
             proxies=proxies, verify=verify, token=token, fields=fields,
             min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad)
-        continue
-        # start runs
-
-# vcf_path = "files/E1130_var_only.vcf"
-# vcf_path = "files/E1130_23Pabcd_MergedSmallVariants.genome.vcf"
-# vcf_path = "files/test.vcf"
-

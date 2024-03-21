@@ -2,15 +2,23 @@ from . import helpers
 import pandas as pd
 
 def parse_result(resp_ls_dics, var_freq, gnomad):
+    """
+    Filter genome nexus results and retain (likely) clinically relevant variant transcripts.
+    Filters are ClinVar, oncoKB, PolyPhen and SIFT terms.
+    """
     print(f"{helpers.nice_time()} : Creating excel file")
 
+    # tolerated terms for each information source
     clinvar_tolerated = ["Benign", "Likely_benign"]
-    oncokb_tolerated = [ "Neutral", "Likely Neutral", "Unknown"] # 
+    oncokb_tolerated = [ "Neutral", "Likely Neutral", "Unknown"]
     polyphen_tolerated = ["benign"]
     sift_tolerated = ["tolerated"]
+
     out_dict = []
     for resp_dic in resp_ls_dics:
         hgvsg = resp_dic["hgvsg"]
+
+        # clinvar terms
         try:
             clinvar = resp_dic["clinvar"]["annotation"]["clinicalSignificance"]
         except KeyError:
@@ -23,6 +31,7 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
             pop_frequency = gnomad[hgvsg]["gnomad_genome"]["af"]["af"]
         except KeyError:
             pop_frequency = ""
+
         # oncokb
         try:
             oncokb1 = resp_dic["oncokb"]["annotation"]["mutationEffect"]["knownEffect"]
@@ -40,7 +49,13 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
         else:
             oncokb = f"{oncokb1},{oncokb2}"
 
+        # if there are no transcripts and terms are tolerated return the variant
         if len(resp_dic["annotation_summary"]["transcriptConsequenceSummaries"]) == 0:
+                
+            if all(x in clinvar_tolerated for x in clinvar.split("/")):
+                if all(x in oncokb_tolerated for x in oncokb.split(",")):
+                    continue
+ 
             dic_to_add = {
                 "hgvsg": hgvsg,
                 "allele_frequency": var_freq[hgvsg],
@@ -50,8 +65,10 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
             }
 
             out_dict.append(dic_to_add)            
-
+        
+        # loop through transcripts
         for conseq in resp_dic["annotation_summary"]["transcriptConsequenceSummaries"]:
+            
             transcript_id = conseq["transcriptId"]
             hugo = conseq["hugoGeneSymbol"]
             if "hgvsc" in conseq:
@@ -67,13 +84,15 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
             conseq_terms = conseq["consequenceTerms"]
             variant_class = conseq["variantClassification"]
 
+            # polyphen
             if "polyphenScore" in conseq:
                 poly_score = conseq["polyphenScore"]
                 poly_pred = conseq["polyphenPrediction"]
             else:
                 poly_score = ""
                 poly_pred = ""
-
+            
+            # sift
             if "siftScore" in conseq:
                 sift_score = conseq["siftScore"]
                 sift_pred = conseq["siftPrediction"]
@@ -81,6 +100,7 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
                 sift_score = ""
                 sift_pred = ""
             
+            # if all terms are tolerated, skip the transcript
             if clinvar == "" or all(x in clinvar_tolerated for x in clinvar.split("/")):
 
                 if oncokb == "" or all(x in oncokb_tolerated for x in oncokb.split(",")):
@@ -91,7 +111,7 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
                             if not (poly_pred == "" and sift_pred == "" and clinvar == ""):
                                 continue
             
-
+            # add transcript to output
             dic_to_add = {
                 "hugo_gene_symbol": hugo,
                 "hgvsg": hgvsg,
