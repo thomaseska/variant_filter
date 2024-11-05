@@ -46,5 +46,6 @@ All options:
 -q | --quality | Minimum quality score for VCF filtering. Default 50.
 -s | --ssl | Path to ssl certificate folder. Needed when using a self-signed certificate (e.g. in Mednet).
 -t | --token | Json file containing tokens to provide to Genome Nexus in the format {"field": "token"}. Currently only the field oncoKB requires a token. 
+   | -- ont | Indicate the VCF was created from long read sequencing (ONT) data using longphase.
 
 

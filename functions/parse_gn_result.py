@@ -16,8 +16,10 @@ def parse_result(resp_ls_dics, var_freq, gnomad):
 
     out_dict = []
     for resp_dic in resp_ls_dics:
-        hgvsg = resp_dic["hgvsg"]
-
+        try:
+            hgvsg = resp_dic["hgvsg"]
+        except KeyError:
+            continue
         # clinvar terms
         try:
             clinvar = resp_dic["clinvar"]["annotation"]["clinicalSignificance"]

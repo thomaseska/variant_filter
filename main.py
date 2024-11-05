@@ -9,7 +9,7 @@ import os
 def run(proxies, verify,
         vcf_path, excel_file, json_out,
         min_qual, min_dp, min_VF, max_gnomad,
-        fields, token):
+        fields, token, ont=False):
     """
     Execute the workflow for one VCF file:
         - parse the VCF to obtain relevant variants
@@ -19,11 +19,16 @@ def run(proxies, verify,
         - retain clinically relevant variant transcripts 
     """
 
-
-    req_ls, var_freq = parse_vcf.parse_vcf(vcf_path=vcf_path,
-                                            min_qual=min_qual,
-                                            min_dp=min_dp,
-                                            min_VF=min_VF)
+    if ont:
+        req_ls, var_freq = parse_vcf.parse_vcf_ont(vcf_path=vcf_path,
+                                                    min_qual=min_qual,
+                                                    min_dp=min_dp,
+                                                    min_VF=min_VF)
+    else:
+        req_ls, var_freq = parse_vcf.parse_vcf(vcf_path=vcf_path,
+                                                min_qual=min_qual,
+                                                min_dp=min_dp,
+                                                min_VF=min_VF)
 
     gnomad = call_GN.request_variant_info(req_ls=req_ls,
                                         proxies=proxies,
@@ -78,6 +83,8 @@ parser.add_argument("-g", "--gnomad",
 
 parser.add_argument("-t", "--token", help="file containing token(s)")
 
+parser.add_argument("--ont", help="VCF was generated from ONT data", action="store_true")
+
 
 
 args = parser.parse_args()
@@ -93,6 +100,10 @@ if args.ssl:
 else:
     verify = None
 
+if args.ont:
+    ont = True
+else:
+    ont = False
 
 min_qual = args.quality
 min_dp = args.depth
@@ -125,7 +136,7 @@ if not args.batch:
     
     run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out,
         proxies=proxies, verify=verify, token=token, fields=fields,
-        min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad)
+        min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, ont=ont)
 
 else:
     vcf_folder = args.VCF_file_or_folder
@@ -144,4 +155,4 @@ else:
 
         run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out,
             proxies=proxies, verify=verify, token=token, fields=fields,
-            min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad)
+            min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, ont=ont)
