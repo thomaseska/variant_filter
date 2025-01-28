@@ -8,8 +8,9 @@ def request_annotation(req_ls, proxies, verify, fields=None, token=None, json_ou
     Some fields, like oncoKB, require a token for use and will not be returned if none is provided.
     """
 
-
+    its = int(len(req_ls) / 4999) + 1
     print(f"{helpers.nice_time()} : Requesting annotation from Genome Nexus...")
+    print(f"{helpers.nice_time()} : Making {its} requests...")
 
     payload = {}
     if token:
@@ -24,11 +25,31 @@ def request_annotation(req_ls, proxies, verify, fields=None, token=None, json_ou
     req_headers = {"Content-Type": "application/json",
                 "Accept": "application/json"}
     
-    req_res = requests.post(req_url, json=req_ls, headers=req_headers, params=payload, proxies=proxies, verify=verify)
+    resp_ls = []
 
-    resp_status = req_res.status_code
-    print(f"{helpers.nice_time()} : Request returned exit code {resp_status}")
-    resp_ls_dics = req_res.json()
+    for i in range(its):
+        last = min((i+1)*4999 - 1, len(req_ls) - 1)
+        first = i*4999
+        if first == last:
+            ids = req_ls[first]
+        else:
+            ids = req_ls[first:last]
+        req_res = requests.post(req_url, json=ids, headers=req_headers, params=payload, proxies=proxies, verify=verify)
+        
+        resp_status = req_res.status_code
+        print(f"{helpers.nice_time()} : Request {i+1} returned exit code {resp_status}")
+        resp = req_res.json()
+        resp_ls.extend(resp)
+
+    # old
+    # req_res = requests.post(req_url, json=req_ls, headers=req_headers, params=payload, proxies=proxies, verify=verify)
+
+    #resp_status = req_res.status_code
+    #print(f"{helpers.nice_time()} : Request returned exit code {resp_status}")
+    #resp_ls_dics = req_res.json()
+    
+    # for legacy reasons
+    resp_ls_dics = resp_ls
 
     if json_out:
         with open(json_out, "w") as outfile:

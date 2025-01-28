@@ -5,11 +5,12 @@ import functions.helpers as helpers
 import argparse
 import json
 import os
+import glob
 
 def run(proxies, verify,
-        vcf_path, excel_file, json_out,
-        min_qual, min_dp, min_VF, max_gnomad,
-        fields, token, ont=False):
+        vcf_path, excel_file, json_out, csv_out,
+        min_qual, min_dp, min_VF, max_gnomad, flags,
+        fields, token, ont=False, mutect=False):
     """
     Execute the workflow for one VCF file:
         - parse the VCF to obtain relevant variants
@@ -24,6 +25,12 @@ def run(proxies, verify,
                                                     min_qual=min_qual,
                                                     min_dp=min_dp,
                                                     min_VF=min_VF)
+    elif mutect:
+        req_ls, var_freq = parse_vcf.parse_vcf_mutect(vcf_path=vcf_path,
+                                            pass_filter = ["PASS"],
+                                            min_dp=min_dp,
+                                            min_VF=min_VF)
+
     else:
         req_ls, var_freq = parse_vcf.parse_vcf(vcf_path=vcf_path,
                                                 min_qual=min_qual,
@@ -51,7 +58,13 @@ def run(proxies, verify,
 
     out_df = parse_gn_result.parse_result(resp_ls_dics, var_freq, gnomad)
 
+    if len(flags) > 0:
+        out_df = out_df[~out_df["hugo_gene_symbol"].isin(flags)]
+
     out_df.to_excel(excel_file, index=False)
+
+    if csv_out:
+        out_df.to_csv(csv_out, index=False)
 
     print(f"{helpers.nice_time()} : Run complete")
 
@@ -85,7 +98,15 @@ parser.add_argument("-t", "--token", help="file containing token(s)")
 
 parser.add_argument("--ont", help="VCF was generated from ONT data", action="store_true")
 
+parser.add_argument("--mutect2", help="VCF was generated using mutect2", action="store_true")
 
+parser.add_argument("--csv", help="optional output file in csv format")
+
+parser.add_argument("--rmflag", help="remove the top N flag genes from the output (default 0)",
+                    default=0, type=int)
+
+# https://static-content.springer.com/esm/art%3A10.1186%2Fs12920-017-0309-7/MediaObjects/12920_2017_309_MOESM3_ESM.txt
+parser.add_argument("--rmflagfile", help="path to file containing flag genes")
 
 args = parser.parse_args()
 
@@ -105,10 +126,39 @@ if args.ont:
 else:
     ont = False
 
+if args.mutect2:
+    mutect = True
+else:
+    mutect = False
+
+if mutect & ont:
+    print("Options ont and mutect2 are mutually exclusive! Exiting...")
+    exit(1)
+
+
+
 min_qual = args.quality
 min_dp = args.depth
 min_VF = args.frequency
 max_gnomad = args.gnomad
+rmflag = args.rmflag
+
+
+flags = []
+if rmflag > 0:
+    try:
+        counter = 1
+        with open(args.rmflagfile, "r")as flagfile:
+            for line in flagfile:
+                hugo = line.strip("\n").split("\t")[0]
+                flags.append(hugo)
+                if counter == rmflag:
+                    break
+
+    except FileNotFoundError:
+        print("Flagfile not found. Exiting...")
+        exit(0)
+
 
 fields = ["annotation_summary", "clinvar", "oncokb", "my_variant_info"]
 
@@ -134,14 +184,20 @@ if not args.batch:
     else:
         json_out = None
     
-    run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out,
+    if args.csv:
+        csv_out = args.csv
+    else:
+        csv_out = None
+    
+    run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out, csv_out=csv_out,
         proxies=proxies, verify=verify, token=token, fields=fields,
-        min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, ont=ont)
+        min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, flags=flags,
+        ont=ont, mutect=mutect)
 
 else:
     vcf_folder = args.VCF_file_or_folder
     out_folder = args.output
-    vcf_files = os.listdir(vcf_folder)
+    vcf_files = glob.glob("*.vcf", root_dir=vcf_folder)
 
  
     for file in vcf_files:
@@ -152,7 +208,13 @@ else:
             json_out = f"{args.json}/{file[:-4]}.json"
         else:
             json_out = None
+        
+        if args.csv:
+            csv_out = f"{args.csv}/{file[:-4]}.csv"
+        else:
+            csv_out = None
 
-        run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out,
+        run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out, csv_out=csv_out,
             proxies=proxies, verify=verify, token=token, fields=fields,
-            min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, ont=ont)
+            min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, flags=flags,
+            ont=ont, mutect=mutect)
