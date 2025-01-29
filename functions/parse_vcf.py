@@ -1,6 +1,6 @@
 from . import helpers
 
-def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
+def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05, flags = 0):
     """
     Receive a VCF formatted file and return variant HGVSg strings and variant frequency.
     Filters:    min_qual    | minimum required quality score
@@ -85,7 +85,7 @@ def parse_vcf(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
     return(req_ls, var_freq)
 
 
-def parse_vcf_ont(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
+def parse_vcf_ont(vcf_path, min_qual=50, min_dp=25, min_VF=0.05, flags=0):
     """
     Receive a VCF formatted file and return variant HGVSg strings and variant frequency.
     Filters:    min_qual    | minimum required quality score
@@ -171,7 +171,7 @@ def parse_vcf_ont(vcf_path, min_qual=50, min_dp=25, min_VF=0.05):
     return(req_ls, var_freq)
 
 
-def parse_vcf_mutect(vcf_path, pass_filter=["PASS"], min_dp=25, min_VF=0.05):
+def parse_vcf_mutect(vcf_path, pass_filter=["PASS"], min_dp=25, min_VF=0.05, flags=0):
     """
     Receive a VCF formatted file and return variant HGVSg strings and variant frequency.
     Filters:    pass_filter | passing keywords in filter field
@@ -229,6 +229,12 @@ def parse_vcf_mutect(vcf_path, pass_filter=["PASS"], min_dp=25, min_VF=0.05):
             # filter blacklist
             if "Blacklist" in fields[6].split(";"):
                 continue
+
+            if flags is not None:
+                flg = flags[(flags["chr"] == str(fields[0])) & (flags["start"] <= int(fields[1])) & (flags["stop"] >= int(fields[1]))]
+                if len(flg.index) > 0:
+                    continue
+
 
             # build identifier
             ref = fields[3]
