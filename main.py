@@ -49,6 +49,8 @@ def run(proxies, verify,
 
         # filter variant list by gnomAD result
         req_ls = [variant for variant in req_ls if variant in list(gnomad.keys())]
+    else:
+        gnomad = {}
 
     print(f"{helpers.nice_time()} : {len(req_ls)} variants left after gnomad filtering")
 
@@ -66,7 +68,11 @@ def run(proxies, verify,
     # if len(flags) > 0:
     #     out_df = out_df[~out_df["hugo_gene_symbol"].isin(flags)]
 
-    out_df.to_excel(excel_file, index=False)
+    try:
+        out_df.to_excel(excel_file, index=False)
+    except ValueError as e:
+        print(f"{helpers.nice_time()} : ERROR creating xlsx file ({e})")
+
 
     if csv_out:
         out_df.to_csv(csv_out, index=False)
