@@ -1,3 +1,4 @@
+import requests.adapters
 from . import helpers
 import requests
 import json
@@ -27,6 +28,8 @@ def request_annotation(req_ls, proxies, verify, fields=None, token=None, json_ou
     
     resp_ls = []
 
+    sesh = requests.Session()
+
     for i in range(its):
         last = min((i+1)*4999 - 1, len(req_ls) - 1)
         first = i*4999
@@ -34,7 +37,11 @@ def request_annotation(req_ls, proxies, verify, fields=None, token=None, json_ou
             ids = req_ls[first]
         else:
             ids = req_ls[first:last]
-        req_res = requests.post(req_url, json=ids, headers=req_headers, params=payload, proxies=proxies, verify=verify)
+        
+        retries = requests.adapters.Retry(total=5,
+                                          backoff_factor=0.1)
+        sesh.mount("https://", requests.adapters.HTTPAdapter(max_retries=retries))
+        req_res = sesh.post(req_url, json=ids, headers=req_headers, params=payload, proxies=proxies, verify=verify)
         
         resp_status = req_res.status_code
         print(f"{helpers.nice_time()} : Request {i+1} returned exit code {resp_status}")
