@@ -36,16 +36,32 @@ python main.py -b -o <outputdirectory> <inputdirectory>
 All options:
 |short|long|description
 |-|-|-
--b | --batch | Run in batch mode. Input must be a directory containing **only** VCF files.
+-b | --batch | Run in batch mode. Input must be a directory containing all VCF files.
 -d | --depth | Minimum allele depth for VCF filtering. Default 25. Variants in the range 5:1253147-1295368 are returned even when failing this step, covering TERT, which is relevant even at low coverage.
 -f | --frequency | Minimum allele frequency within the sample for VCF filtering. Default 0.05.
 -g | --gnomad | Maximum variant frequency in the population for a variant to be considered. Default 0.01.
 -j | --json | File to save Genome Nexus Response to. In batch mode this must be a directory.
--o | --output | **REQUIRED**. Output file to write to. Output will be in xlsx format. In batch mode this must be a directory, files will be named after the input files.
+-o | --output | **REQUIRED**. Output file to write to. Output will be in xlsx format. In batch mode this must be a directory, files will be named after the input files. **WARNING**: When analizing WGS data, output may exceed the maximum excel sheet size. In this case no xlsx will be saved. CSVs will still be saved if the option was set.
+|  | --csv  | save file as CSV in addition to xlsx. In batch mode this must be a directory, files will be named after the input files.
 -p | --proxies | Json file containing proxies in the format {"https": "your.proxy":<port>}. Needed when making requests through a proxy (e.g. in Mednet).
 -q | --quality | Minimum quality score for VCF filtering. Default 50.
 -s | --ssl | Path to ssl certificate folder. Needed when using a self-signed certificate (e.g. in Mednet).
 -t | --token | Json file containing tokens to provide to Genome Nexus in the format {"field": "token"}. Currently only the field oncoKB requires a token. 
-   | -- ont | Indicate the VCF was created from long read sequencing (ONT) data using longphase.
+| | -- ont | Indicate the VCF was created from long read sequencing (ONT) data using longphase.
+| | --mutect2 | Indicate VCF was created using mutect2. Disables gnomad filtering, since this is already done in mutect2.
+| | --rmflag | remove top N flag genes (https://doi.org/10.1186/s12920-017-0309-7). Requires flag genes file. Default 0.
+| | --rmflagfile | sorted list of flag genes from Shyr *et al*, annotated with chromosomal location. Example below.
 
+
+
+##### Flag genes file example (comma separated)
+| | | | | | |
+|-|-|-|-|-|-|
+TTN| 2659| chr2| 179390715| 179695529| HGNC:12403
+MUC16| 1222| chr19| 8959519| 9121066| HGNC:15582
+OBSCN| 825| chr1| 228395744| 228566577| HGNC:15719
+AHNAK2| 809| chr14| 105403580| 105444711| HGNC:20125
+SYNE1| 686| chr6| 152442821| 152958936| HGNC:17089
+FLG| 622| chr1| 152274640| 152297715| HGNC:3748
+MUC5B| 552| chr11| 1244295| 1283402| HGNC:7516
 
