@@ -88,7 +88,7 @@ def request_variant_info(req_ls, proxies, verify, max_gnomad):
                    "Accept": "application/json"}
     
     resp_ls = []
-
+    sesh = requests.Session()
     # request info in blocks of 999
     for i in range(its):
         last = min((i+1)*999 - 1, len(full_ids) - 1)
@@ -97,10 +97,20 @@ def request_variant_info(req_ls, proxies, verify, max_gnomad):
             payload = {"ids": full_ids[first]}
         else:
             payload = {"ids": full_ids[first:last]}
-        req_res = requests.post(req_url, json=payload, headers=req_headers, params=params, proxies=proxies, verify=verify)
-        
-        resp_status = req_res.status_code
-        print(f"{helpers.nice_time()} : Request {i+1} returned exit code {resp_status}")
+        success = False
+        repeat = 0
+        while not success and repeat < 5:
+            retries = requests.adapters.Retry(total=5,
+                                            backoff_factor=0.1)
+            sesh.mount("https://", requests.adapters.HTTPAdapter(max_retries=retries))
+            req_res = sesh.post(req_url, json=payload, headers=req_headers, params=params, proxies=proxies, verify=verify)
+            
+            resp_status = req_res.status_code
+            print(f"{helpers.nice_time()} : Request {i+1} returned exit code {resp_status}")
+            if resp_status == 200:
+                success = True
+            else:
+                repeat += 1
         resp = req_res.json()
         resp_ls.extend(resp)
 
