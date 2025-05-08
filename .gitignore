@@ -6,3 +6,4 @@ run.sh
 .vscode
 oncoKB_token.json
 proxies.json
+.snakemake

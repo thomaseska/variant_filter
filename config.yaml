@@ -1,0 +1,12 @@
+base_dir: "/sound/home/thomas/various/tso_vcfs"
+result_dir: "/sound/home/thomas/various/tso_vcfs/variant_filter_results"
+
+mutect2: false
+ont: false
+rmflag: false
+flagfile: "/sound/data/genomes/hsapiens/flag_genes_list.txt"
+
+depth: 25
+quality: 100
+frequency: 0.05
+gnomad: 0.01

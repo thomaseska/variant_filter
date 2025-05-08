@@ -121,7 +121,7 @@ def parse_vcf_ont(vcf_path, min_qual=50, min_dp=25, min_VF=0.05, flags=0):
                 continue
 
             # filter quality
-            if int(fields[5]) < min_qual:
+            if float(fields[5]) < min_qual:
                 # keep TERT
                 if not (fields[0] == "chr5" and int(fields[1]) >= 1253147 and int(fields[1]) <= 1295300):
                     continue
