@@ -7,3 +7,5 @@ run.sh
 oncoKB_token.json
 proxies.json
 .snakemake
+.Rproj.user
+*.Rproj
