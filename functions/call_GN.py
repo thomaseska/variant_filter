@@ -36,7 +36,7 @@ def request_annotation(req_ls, proxies, verify, fields=None, token=None, json_ou
         if first == last:
             ids = req_ls[first]
         else:
-            ids = req_ls[first:last]
+            ids = req_ls[first:(last+1)]
         
         retries = requests.adapters.Retry(total=5,
                                           backoff_factor=0.1)
