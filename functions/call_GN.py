@@ -96,7 +96,7 @@ def request_variant_info(req_ls, proxies, verify, max_gnomad):
         if first == last:
             payload = {"ids": full_ids[first]}
         else:
-            payload = {"ids": full_ids[first:last]}
+            payload = {"ids": full_ids[first:(last+1)]}
         success = False
         repeat = 0
         while not success and repeat < 5:
