@@ -2,6 +2,7 @@ import functions.parse_vcf as parse_vcf
 import functions.call_GN as call_GN
 import functions.parse_gn_result as parse_gn_result
 import functions.helpers as helpers
+import functions.parse_patho as pp
 import argparse
 import json
 import os
@@ -11,7 +12,7 @@ import pandas as pd
 def run(proxies, verify,
         vcf_path, excel_file, json_out, csv_out,
         min_qual, min_dp, min_VF, max_gnomad, flags,
-        fields, token, ont=False, mutect=False):
+        fields, token, ont=False, mutect=False, patho=False):
     """
     Execute the workflow for one VCF file:
         - parse the VCF to obtain relevant variants
@@ -33,6 +34,8 @@ def run(proxies, verify,
                                             min_dp=min_dp,
                                             min_VF=min_VF,
                                             flags=flags)
+    elif patho:
+        req_ls = pp.parse_patho(vcf_path)
 
     else:
         req_ls, var_freq = parse_vcf.parse_vcf(vcf_path=vcf_path,
@@ -41,7 +44,7 @@ def run(proxies, verify,
                                                 min_VF=min_VF,
                                                 flags=flags)
 
-    if not mutect:
+    if not mutect and not patho:
         gnomad = call_GN.request_variant_info(req_ls=req_ls,
                                             proxies=proxies,
                                             verify=verify,
@@ -62,8 +65,10 @@ def run(proxies, verify,
                                             json_out=json_out)
 
 
-
-    out_df = parse_gn_result.parse_result(resp_ls_dics, var_freq, gnomad)
+    if not patho:
+        out_df = parse_gn_result.parse_result(resp_ls_dics, var_freq, gnomad)
+    else:
+        out_df = pp.parse_patho_result(resp_ls_dics)
 
     # if len(flags) > 0:
     #     out_df = out_df[~out_df["hugo_gene_symbol"].isin(flags)]
@@ -119,6 +124,8 @@ parser.add_argument("--rmflag", help="remove the top N flag genes from the outpu
 # https://static-content.springer.com/esm/art%3A10.1186%2Fs12920-017-0309-7/MediaObjects/12920_2017_309_MOESM3_ESM.txt
 parser.add_argument("--rmflagfile", help="path to file containing flag genes")
 
+parser.add_argument("--patho", help="Input is a CSV file provided by LMU Pathology", action="store_true")
+
 args = parser.parse_args()
 
 if args.proxies:
@@ -146,6 +153,10 @@ if mutect & ont:
     print("Options ont and mutect2 are mutually exclusive! Exiting...")
     exit(1)
 
+if args.patho:
+    patho=True
+else:
+    patho=False
 
 
 min_qual = args.quality
@@ -205,7 +216,7 @@ if not args.batch:
     run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out, csv_out=csv_out,
         proxies=proxies, verify=verify, token=token, fields=fields,
         min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, flags=flags,
-        ont=ont, mutect=mutect)
+        ont=ont, mutect=mutect, patho=patho)
 
 else:
     vcf_folder = args.VCF_file_or_folder
@@ -230,4 +241,4 @@ else:
         run(vcf_path=vcf_path, excel_file=excel_file, json_out=json_out, csv_out=csv_out,
             proxies=proxies, verify=verify, token=token, fields=fields,
             min_qual=min_qual, min_dp=min_dp, min_VF=min_VF, max_gnomad=max_gnomad, flags=flags,
-            ont=ont, mutect=mutect)
+            ont=ont, mutect=mutect, patho=patho)
