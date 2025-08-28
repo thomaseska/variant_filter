@@ -9,3 +9,4 @@ proxies.json
 .snakemake
 .Rproj.user
 *.Rproj
+.Rhistory
