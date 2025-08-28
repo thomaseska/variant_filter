@@ -2,9 +2,12 @@ import pandas as pd
 from . import helpers
 
 def parse_patho(csv_path):
-    df = pd.read_csv(csv_path, sep=";")
+    if csv_path[-4:] == ".csv":
+        df = pd.read_csv(csv_path, sep=";")
+    elif csv_path[-5:] == ".xlsx":
+        df = pd.read_excel(csv_path)
 
-    df = df[["chr", "start", "end", "ref", "alt"]]
+    df = df[["chr", "start", "ref", "alt"]]
     df = df.dropna()
     print(df)
     def build_hgvsg(row):
