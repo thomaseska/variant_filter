@@ -6,6 +6,9 @@ def parse_patho(csv_path):
         df = pd.read_csv(csv_path, sep=";")
     elif csv_path[-5:] == ".xlsx":
         df = pd.read_excel(csv_path)
+    else:
+        print("Input is not .csv or .xlsx. Please check your input file!")
+        exit(1)
 
     df = df[["chr", "start", "ref", "alt"]]
     df = df.dropna()

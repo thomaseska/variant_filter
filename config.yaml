@@ -7,6 +7,6 @@ rmflag: false
 flagfile: "/sound/data/genomes/hsapiens/flag_genes_list.txt"
 
 depth: 25
-quality: 100
+quality: 50
 frequency: 0.05
 gnomad: 0.01
