@@ -4,11 +4,17 @@ from . import helpers
 def parse_patho(csv_path):
     if csv_path[-4:] == ".csv":
         df = pd.read_csv(csv_path, sep=";")
+        if len(df.columns) == 1:
+            df = pd.read_csv(csv_path, sep=",")
+            if len(df.columns) == 1:
+                print("Input is not separated by ',' or ';'. Please check your input file!")
     elif csv_path[-5:] == ".xlsx":
         df = pd.read_excel(csv_path)
     else:
         print("Input is not .csv or .xlsx. Please check your input file!")
         exit(1)
+
+    print(df)
 
     df = df[["chr", "start", "ref", "alt"]]
     df = df.dropna()
