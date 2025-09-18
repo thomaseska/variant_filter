@@ -13,6 +13,16 @@ def parse_patho(csv_path):
     else:
         print("Input is not .csv or .xlsx. Please check your input file!")
         exit(1)
+    
+    # select case:
+    unique_cases = df["pathoId"].unique()
+    print("Available IDs:")
+    for i, id in enumerate(unique_cases, start=1):
+        print(f"[{i}] {id}")
+    choice = int(input("Enter your Selection: "))
+
+    selected_value = unique_cases[choice -1]
+    df = df[df["pathoId"] == selected_value]
 
     print(df)
 
