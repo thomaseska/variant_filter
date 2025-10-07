@@ -24,7 +24,7 @@ def parse_patho(csv_path):
 
         selected_value = unique_cases[choice -1]
         df = df[df["pathoId"] == selected_value]
-    elif "ngs_id" in df.columns.values.tolist():
+    elif "ng_id" in df.columns.values.tolist():
         unique_cases = df["ngs_id"].unique()
         print("Available IDs:")
         for i, id in enumerate(unique_cases, start=1):
@@ -34,9 +34,22 @@ def parse_patho(csv_path):
         selected_value = unique_cases[choice -1]
         df = df[df["ngs_id"] == selected_value]
     else:
-        print("WARNING: Case identifier (pathoId or ngs_id) not found in column headers")
-        print("WARNING: Proceeding with all rows")
-        print("WARNING: If other cases are included in this file results will be wrong!")
+        print("Identifier Column not found. Select Identifier column from options below:")
+        print("[0] No Identifier (Use all rows)")
+        for i, id in enumerate(df.columns.values.tolist(), start=1):
+            print(f"[{i}] {id}")
+        col_choice = int(input("Enter your Selection: "))
+        if col_choice != 0:
+            col_selected_value = df.columns.values.tolist()[col_choice -1]
+            
+            unique_cases = df[col_selected_value].unique()
+            print("Available IDs:")
+            for i, id in enumerate(unique_cases, start=1):
+                print(f"[{i}] {id}")
+            choice = int(input("Enter your Selection: "))
+
+            selected_value = unique_cases[choice -1]
+            df = df[df[col_selected_value] == selected_value]
 
     print(df)
 
