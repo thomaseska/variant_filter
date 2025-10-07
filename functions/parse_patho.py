@@ -24,7 +24,7 @@ def parse_patho(csv_path):
 
         selected_value = unique_cases[choice -1]
         df = df[df["pathoId"] == selected_value]
-    elif "ng_id" in df.columns.values.tolist():
+    elif "ngs_id" in df.columns.values.tolist():
         unique_cases = df["ngs_id"].unique()
         print("Available IDs:")
         for i, id in enumerate(unique_cases, start=1):
