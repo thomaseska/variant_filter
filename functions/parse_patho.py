@@ -15,14 +15,28 @@ def parse_patho(csv_path):
         exit(1)
     
     # select case:
-    unique_cases = df["pathoId"].unique()
-    print("Available IDs:")
-    for i, id in enumerate(unique_cases, start=1):
-        print(f"[{i}] {id}")
-    choice = int(input("Enter your Selection: "))
+    if "pathoId" in df.columns.values.tolist():
+        unique_cases = df["pathoId"].unique()
+        print("Available IDs:")
+        for i, id in enumerate(unique_cases, start=1):
+            print(f"[{i}] {id}")
+        choice = int(input("Enter your Selection: "))
 
-    selected_value = unique_cases[choice -1]
-    df = df[df["pathoId"] == selected_value]
+        selected_value = unique_cases[choice -1]
+        df = df[df["pathoId"] == selected_value]
+    elif "ngs_id" in df.columns.values.tolist():
+        unique_cases = df["ngs_id"].unique()
+        print("Available IDs:")
+        for i, id in enumerate(unique_cases, start=1):
+            print(f"[{i}] {id}")
+        choice = int(input("Enter your Selection: "))
+
+        selected_value = unique_cases[choice -1]
+        df = df[df["ngs_id"] == selected_value]
+    else:
+        print("WARNING: Case identifier (pathoId or ngs_id) not found in column headers")
+        print("WARNING: Proceeding with all rows")
+        print("WARNING: If other cases are included in this file results will be wrong!")
 
     print(df)
 
